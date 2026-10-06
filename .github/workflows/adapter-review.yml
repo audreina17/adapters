@@ -146,6 +146,29 @@ jobs:
       - name: Checkout base repository
         uses: actions/checkout@v6
 
+      - name: Load trusted review guidance
+        id: review-guidance
+        shell: python
+        run: |
+          import os
+          import uuid
+          from pathlib import Path
+
+          sources = [
+              Path("skills/review-adapter/SKILL.md"),
+              Path("skills/review-adapter/references/parity-diagnostics.md"),
+          ]
+          sections = []
+          for path in sources:
+              content = path.read_text(encoding="utf-8")
+              if not content.strip():
+                  raise ValueError(f"Review guidance is empty: {path}")
+              sections.append(f"Source: {path}\n\n{content}")
+          guidance = "\n\n".join(sections)
+          delimiter = f"guidance_{uuid.uuid4().hex}"
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
+              output.write(f"content<<{delimiter}\n{guidance}\n{delimiter}\n")
+
       - name: Claude Adapter Review
         uses: anthropics/claude-code-action@v1
         with:
@@ -159,9 +182,13 @@ jobs:
             Harbor is a framework for evaluating AI agents against benchmark tasks.
             An adapter converts an external benchmark dataset into Harbor's task format.
 
-            Apply the reusable review skill from the trusted base revision:
-            https://raw.githubusercontent.com/${{ github.repository }}/${{ github.sha }}/skills/review-adapter/SKILL.md
-            Resolve its relative links against that same revision; read its diagnostic reference when relevant.
+            Apply the review guidance embedded below from the trusted base checkout.
+            Use the diagnostic sections when relevant to the adapter being reviewed.
+            Resolve relative links against https://github.com/${{ github.repository }}/blob/${{ github.sha }}/
+            using the source file's directory.
+            <Trusted Review Guidance>
+            ${{ steps.review-guidance.outputs.content }}
+            </Trusted Review Guidance>
             The authoritative acceptance specification is:
             https://raw.githubusercontent.com/${{ github.repository }}/${{ github.sha }}/docs/adapters.mdx
             If the embedded tutorial below differs from that specification, follow the specification.
