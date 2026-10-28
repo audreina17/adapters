@@ -70,11 +70,12 @@ jobs:
 
       - name: Detect adapters
         id: detect
+        shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           ADAPTERS=$(gh api "repos/${{ github.repository }}/pulls/${{ steps.pr.outputs.number }}/files" \
-            --paginate --jq '[.[].filename | select(startswith("src/")) | split("/")[1]] | unique | join(" ")')
+            --paginate --slurp | jq -r '[.[][].filename | select(startswith("src/")) | split("/")[1]] | unique | join(" ")')
           echo "adapters=$ADAPTERS" >> "$GITHUB_OUTPUT"
           echo "Detected adapters: $ADAPTERS"
 

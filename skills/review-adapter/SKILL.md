@@ -105,13 +105,29 @@ evidence needed to resolve a finding.
 
 ## Report a review that can be acted on
 
-Lead with the reviewed SHA, contract version/revision, and available evidence.
+Aim for 600–1,000 words per adapter, including tables. Open with the verdict,
+reviewed SHA, contract version/revision, and available evidence. Keep provenance
+and coverage in compact tables. Group related
+symptoms under one root cause and omit passed-check inventories and style nits.
+Do not repeat findings in a closing summary. Do not suppress material blockers to
+meet the target; group them and use compact lists instead.
+
 For each material finding, include the applicable stable requirement ID from the
 specification (or exact section when no ID exists), exact source lines at the
 reviewed SHA, observed behavior, consequence, and smallest correction or validation
 step. Cite upstream revisions and artifact configurations separately. Verify line
 locations against the source; repeated field names may belong to different entries.
 Group one root cause into one finding with all affected paths or metrics.
+
+Every code or configuration finding must include a clickable source permalink
+at the revision inspected. For GitHub code, use
+`https://github.com/<owner>/<repo>/blob/<full-sha>/<path>#L<start>-L<end>`
+(or `#L<line>` for a single line); use an equivalent revision-pinned link on other
+source hosts. Bare `file:line` text or a SHA in the report header is not a
+substitute. Use the reviewed adapter SHA for adapter code and the
+pinned upstream SHA for upstream code. For missing evidence, link the inspected
+README, configuration, or artifact that exposes the gap. If a source or line
+cannot be verified, mark that claim unverified; do not invent a location.
 
 Label evidence as static inspection, submitted artifact, manually recomputed
 statistic, independently reproduced behavior, or unverified. Claim independent
@@ -135,3 +151,7 @@ re-check their findings at the current SHA and mark resolved / still present /
 unverified. If history is unavailable, do not claim no earlier findings exist.
 Link reproducible commands, pinned revisions, and sanitized artifacts. Never copy
 credentials or raw private model reasoning into a review.
+
+Before returning the report, remove repeated explanations, check the length, and
+verify that every code/configuration finding has a pinned source link. Keep
+unverified checks distinct from reproduced defects.
